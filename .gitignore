@@ -43,6 +43,9 @@ yarn-error.log*
 .env*
 !.env.example
 
+# Documentation (internal)
+PRD.md
+
 # vercel
 .vercel
 

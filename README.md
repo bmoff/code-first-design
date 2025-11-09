@@ -1,147 +1,89 @@
 # Code-First-Design
 
-Code-First-Design is a small experiment in closing the gap between design and development. It's a framework for people who build directly in code and want to use AI editors, like Cursor or Claude Code, without ending up with a messy or inconsistent project.
+Design and development are converging. AI-powered IDEs are becoming increasingly visual and context-aware, while design tools are adding code generation features. The boundaries between designing and coding are fading.
 
-It doesn't replace design tools or solve every workflow problem. It's just a simple structure that makes it easier to prototype and promote components safely inside your codebase.
+Despite this shift, most workflows still assume a strict handoff: designers work in design tools like Figma, developers rebuild their work in code, and AI tools generate unstructured snippets that don't fit neatly into existing projects. This creates duplication, inconsistency, and friction.
 
-## Quick Comparison
+Code-First-Design starts from a simple idea: if most of the real product experience already lives in code, then design and prototyping should live there too. Instead of switching tools or formats, developers can prototype, validate, and promote components within the same environment, guided by light project rules and structure that AI can understand.
 
-**Without Code-First-Design:**
+This is a lightweight framework for organising UI components in Next.js projects that use AI coding assistants. It works with Cursor, Claude Code, and other AI editors that support rule files (like .mdc files). It offers a simple structure for prototyping and promoting components.
 
-```
-❌ Components scattered: `components/`, `src/components/`, `app/components/`
-❌ No demos or previews
-❌ Draft code in production
-❌ Inconsistent naming
-```
+We're still experimenting with how this works in production and welcome feedback. It doesn't replace design tools or solve every workflow problem, but we're finding it useful for our own projects and want to see if it helps others too.
 
-**With Code-First-Design:**
+## Problems Code-First-Design Solves
 
-```
-✅ Clear structure: `components/draft/` vs `components/ui/`
-✅ Demos at `/proto/components/[slug]`
-✅ ESLint prevents draft imports in production
-✅ Consistent patterns via rule files
-```
+**Duplicate work between design and code**
 
-## Why
+Developers often design components in Figma, then rebuild them in code. This doubles the effort and slows iteration.
 
-Modern editors can now generate UI quickly, but they often lack structure. Files end up scattered, naming is inconsistent, and unfinished code can slip into production.
+**Fragmented workflows**
 
-**The result:** You spend more time cleaning up AI-generated code than you save by using AI in the first place.
+Product managers, designers, and developers work in separate tools with handoffs between each stage. This creates friction and lost context.
 
-Code-First-Design adds a few simple guardrails:
+**Unnecessary divide between design and development**
 
-* A clear folder layout for **draft** and **production** components.
-* Three Cursor rule files that guide where AI-generated code should go.
-* Validation and ESLint rules to stop experimental code from leaking into live builds.
+Modern frontend frameworks and AI tools make it possible to design directly in code, yet the tools remain siloed.
 
-The idea is to spend less time moving between Figma and code, and more time iterating directly where the product actually runs.
+**Too much overhead for solo or small-team developers**
 
-## Philosophy
+Individual builders don't have time to master both design tools and codebases. They need one environment for both.
 
-Design and development are slowly merging. Designers are working closer to production code, and developers are prototyping faster than ever.
+**Lack of integrated, AI-friendly structure**
 
-This project is a small step towards that future. It's not perfect and won't fit every team or project, but it's something we're experimenting with to see what works.
+AI editors like Cursor can generate UI fast, but without clear structure or context. There's no system for prototypes, validation, or promoting work safely to production.
 
-If you try it or have thoughts, we'd genuinely like to hear your feedback and ideas.
+Code-First-Design offers a simple structure that lets you design and iterate directly in code, with guardrails to keep things organised and safe.
 
----
+## Setup
 
-## Quick Start
+This framework requires Next.js 15+ (App Router), React 19+, TypeScript, Tailwind CSS, and ESLint.
 
-### Option 1: Copy-Paste Prompt (Recommended)
-
-Copy and paste this prompt into Cursor or your AI editor:
+Copy and paste this prompt into your AI editor (Cursor Composer, Claude Code, or any AI tool that can access this repository). If you're using Cursor or another tool that supports .mdc rule files, those will be set up automatically. Other AI tools can still use the framework, but won't have the automatic rule guidance.
 
 ```
-Set up Code-First-Design in this project. Create `components/draft`, `components/ui`, and `app/proto` folders, add three Cursor rule files (code-first-design-create.mdc, code-first-design-promote.mdc, design.mdc), a simple ExampleCard component with demo, ESLint fences, and a design system page at /proto.
-```
+Set up Code-First-Design in this Next.js project. Code-First-Design is a framework for organising UI components with a clear separation between draft (experimental) and production components. It provides a design system at /proto where you can preview and iterate on components before promoting them to production.
 
-### Option 2: Manual Setup
+The system works with three registries:
+1. Component Registry (registry.ts) - Lists all components with metadata, organised by category
+2. Component Config (component-registry.ts) - Imports component code and defines default props
+3. Demo Renderers ([slug]/page.tsx) - Maps component slugs to demo functions
 
-1. **Copy the framework files** from this repository into your Next.js project
-2. **Install dependencies:**
-   ```bash
-   npm install
-   ```
-3. **Add ESLint configuration** (see [ESLint Setup](#eslint-setup))
-4. **Run the dev server:**
-   ```bash
-   npm run dev
-   ```
-5. **Open the design system:**
-   ```
-   http://localhost:3000/proto
-   ```
+Draft components live in components/draft/ and can only be imported in /proto routes. ESLint blocks draft imports in production routes. When ready, components are promoted by moving them from draft/ to components/ and updating the registries.
 
-## Folder Structure
+Reference the code-first-design repository at https://github.com/bmoff/code-first-design (or use the local repository if it's open) and copy all the framework files.
 
-```
-app/
-  proto/
-    _ds/
-      DesignSystemNav.tsx
-      registry.ts
-      component-registry.ts
-      component-validator.ts
-      validate-components.ts
-      validate-demos.ts
-    _components/
-      ProtoHeader.tsx
-    components/
-      [slug]/
-        page.tsx          # Dynamic demo pages
-    page.tsx               # Design system landing page
-    layout.tsx             # Optional theme provider
+Create the following folder structure:
+- components/draft/ - Experimental components that can only be imported in /proto routes
+- components/ui/ - Production components (shadcn primitives)
+- app/proto/_ds/ - Design system internals (registries, validators, navigation)
+- app/proto/_components/ - Shared components for the design system pages
+- app/proto/components/[slug]/ - Dynamic route for individual component demos
+- .cursor/rules/ - Cursor rule files that guide AI to follow Code-First-Design patterns
+- scripts/ - Validation scripts
 
-components/
-  draft/                  # Experimental components
-  ui/                     # Production components (shadcn primitives)
+Copy all files from the repository:
+1. From app/proto/_ds/: 
+   - DesignSystemNav.tsx - Navigation sheet component
+   - registry.ts - Component registry with metadata (name, path, file location)
+   - component-registry.ts - Component configs with imports and default props
+   - component-validator.ts - Validation utilities for checking components can render
+   - validate-components.ts - Script to validate all components
+   - validate-demos.ts - Demo validation utilities
+2. From app/proto/_components/: ProtoHeader.tsx - Header component for design system pages
+3. From app/proto/components/[slug]/: page.tsx - Dynamic component showcase page
+4. From app/proto/: page.tsx (design system landing page), layout.tsx (layout wrapper)
+5. From components/draft/: ExampleCard.tsx - Example draft component with defaultProps export
+6. From .cursor/rules/: 
+   - code-first-design-create.mdc - Rules for creating new draft components
+   - code-first-design-promote.mdc - Rules for promoting components to production
+   - design.mdc - Template for project-specific design principles
+7. From scripts/: validate-demos.js - Script to validate all components have demos
 
-.cursor/rules/
-  code-first-design-create.mdc
-  code-first-design-promote.mdc
-  design.mdc             # Project-specific design principles
-```
+Install dependencies:
+- npm install @radix-ui/react-dialog @radix-ui/react-label @radix-ui/react-scroll-area @radix-ui/react-slot class-variance-authority clsx lucide-react tailwind-merge
+- npm install --save-dev tsx
 
-## Usage
-
-### Creating a Draft Component
-
-1. Ask your AI editor: "Create a draft component HeroCard with title and cta"
-2. The AI will:
-   - Create `components/draft/HeroCard.tsx`
-   - Add it to the registry
-   - Create a demo entry
-3. View it at `/proto/components/hero-card`
-
-### Promoting to Production
-
-1. Ask your AI editor: "Promote HeroCard to production"
-2. The AI will:
-   - Move the file from `draft/` to `components/`
-   - Update registry entries
-   - Update imports
-3. Run validation: `npm run validate-components`
-
-## Validation
-
-Run these commands to ensure everything is working:
-
-```bash
-# Validate all components can be imported and rendered
-npm run validate-components
-
-# Validate all components have demos
-npm run validate:demos
-```
-
-## ESLint Setup
-
-Add this to your `eslint.config.mjs`:
-
-```js
+Configure ESLint to block draft imports in production: Add to your eslint.config.mjs array (if using flat config):
 {
   rules: {
     "no-restricted-imports": ["error", {
@@ -150,13 +92,116 @@ Add this to your `eslint.config.mjs`:
         message: "Draft components can only be imported in /proto routes."
       }]
     }]
-  },
-  overrides: [{
-    files: ["**/app/proto/**/*", "**/app/dev/**/*"],
-    rules: { "no-restricted-imports": "off" }
-  }]
+  }
+},
+{
+  files: ["**/app/proto/**/*", "**/app/dev/**/*"],
+  rules: { "no-restricted-imports": "off" }
 }
+
+Add validation scripts to package.json:
+"validate-components": "tsx app/proto/_ds/validate-components.ts",
+"validate:demos": "node scripts/validate-demos.js"
+
+Verify setup: Run npm run dev and check that http://localhost:3000/proto loads the design system landing page, and that the Example Card component demo works at /proto/components/example-card.
 ```
+
+## Folder Structure
+
+The framework creates this structure:
+
+```
+app/
+  proto/
+    _ds/                    # Design system internals
+      DesignSystemNav.tsx   # Navigation component
+      registry.ts            # Component registry
+      component-registry.ts # Component configs
+      component-validator.ts # Validation utilities
+      validate-components.ts # Validation script
+      validate-demos.ts      # Demo validation utilities
+    _components/
+      ProtoHeader.tsx        # Header component
+    components/
+      [slug]/
+        page.tsx             # Dynamic demo pages
+    page.tsx                 # Design system landing page
+    layout.tsx               # Layout wrapper
+
+components/
+  draft/                     # Experimental components
+  ui/                        # Production components (shadcn primitives)
+
+.cursor/rules/
+  code-first-design-create.mdc
+  code-first-design-promote.mdc
+  design.mdc                 # Project-specific design principles
+```
+
+## Usage
+
+### Creating a Draft Component
+
+1. Ask your AI editor: "Create a draft component HeroCard with title and cta"
+2. The AI will automatically:
+   - Create `components/draft/HeroCard.tsx`
+   - Add it to the registry in `app/proto/_ds/registry.ts`
+   - Add a demo config in `app/proto/_ds/component-registry.ts`
+   - Create a demo entry in `app/proto/components/[slug]/page.tsx`
+3. View it at `/proto/components/hero-card`
+
+The Cursor rule files are typically included automatically when working on TypeScript or TSX files. The AI should follow the Code-First-Design patterns. If you want to be sure, you can explicitly reference the rule in your prompt, for example: "Create a draft component HeroCard following the code-first-design-create rule."
+
+### Promoting to Production
+
+When a component is ready for production:
+
+1. Ask your AI editor: "Promote HeroCard to production"
+2. The AI will automatically:
+   - Move the file from `components/draft/` to `components/` (or your preferred location)
+   - Update registry entries (move from `draftComponents` to `customComponents`)
+   - Update imports in demo files
+3. Run validation to check everything still works:
+   ```bash
+   npm run validate-components
+   npm run validate:demos
+   ```
+
+ESLint will automatically prevent any remaining draft imports in production routes.
+
+## Validation
+
+The framework includes two validation scripts:
+
+**Validate components:**
+```bash
+npm run validate-components
+```
+
+This checks that all components can be imported and rendered without errors.
+
+**Validate demos:**
+```bash
+npm run validate:demos
+```
+
+This checks that every component in the registry has a corresponding demo implementation.
+
+Run these regularly, especially after creating or promoting components.
+
+## How It Works
+
+The framework uses a simple three-part system:
+
+1. Component Registry (`registry.ts`) - Lists all components with metadata (name, path, file location), organised by category (UI primitives, custom components, draft components, prototypes)
+
+2. Component Config (`component-registry.ts`) - Imports actual component code, defines default props, and provides fallback messages for error states
+
+3. Demo Renderers (`[slug]/page.tsx`) - Maps component slugs to demo renderer functions that display components in the design system
+
+When you visit `/proto`, the landing page reads from the registry and displays all components. When you click a component, it looks up the demo renderer and displays it with usage instructions and documentation.
+
+Draft components live in `components/draft/` and can only be imported in `/proto` routes. ESLint blocks draft imports in production routes automatically. When you promote a component, you move the file and update the registries.
 
 ## Requirements
 
@@ -166,28 +211,23 @@ Add this to your `eslint.config.mjs`:
 - Tailwind CSS
 - ESLint
 
-## How It Works
+## AI Tool Compatibility
 
-1. **Draft Components** live in `components/draft/` and can only be imported in `/proto` routes
-2. **ESLint** blocks draft imports in production routes automatically
-3. **Design System** at `/proto` shows all components with live demos
-4. **Validation Scripts** ensure components can be imported and rendered
-5. **Promotion** is simply moving files and updating registries
+Code-First-Design works with any AI coding assistant. The Cursor rule files (.mdc) provide automatic guidance in Cursor and other tools that support them. If your AI tool doesn't support rule files, you can still use the framework by manually following the patterns described in those rule files when creating or promoting components.
 
 ## Example Workflow
 
 1. Ask Cursor: "Create a draft component HeroCard with title and cta."
-2. Cursor adds `components/draft/HeroCard.tsx`, a demo page, and registry entries.
-3. Open `/proto`, select HeroCard under Draft Components, and iterate.
+2. Cursor adds `components/draft/HeroCard.tsx`, updates the registries, and creates a demo entry.
+3. Open `/proto`, select HeroCard under Draft Components, and iterate on the design.
 4. When ready: "Promote HeroCard to production."
-5. File moves out of `draft`, registries update, validation passes.
+5. File moves out of `draft/`, registries update, validation passes.
 6. ESLint prevents any remaining draft imports in production routes.
 
 ## Contributing
 
-This is an experimental project. We welcome feedback, issues, and pull requests!
+This is an experimental project. We're still learning how this works in production and actively incorporating feedback. We welcome issues, pull requests, and thoughts on how to improve the framework.
 
 ## License
 
 MIT
-

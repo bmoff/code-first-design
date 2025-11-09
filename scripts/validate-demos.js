@@ -21,12 +21,19 @@ try {
   const registryContent = fs.readFileSync(registryPath, 'utf8');
   const showcaseContent = fs.readFileSync(showcasePath, 'utf8');
 
-  // Extract all component paths from registry
+  // Remove commented lines and extract all component paths from registry
+  // Split by lines and filter out comments
+  const lines = registryContent.split('\n');
+  const activeLines = lines
+    .map(line => line.trim())
+    .filter(line => line && !line.startsWith('//') && !line.startsWith('*'));
+  const activeContent = activeLines.join('\n');
+  
   const pathRegex = /path:\s*["']\/proto\/components\/([^"']+)["']/g;
   const registryPaths = [];
   let match;
   
-  while ((match = pathRegex.exec(registryContent)) !== null) {
+  while ((match = pathRegex.exec(activeContent)) !== null) {
     registryPaths.push(match[1]);
   }
 
