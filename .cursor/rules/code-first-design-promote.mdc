@@ -1,0 +1,18 @@
+---
+description: Promote draft components to production
+globs: ["**/*.tsx", "**/*.ts"]
+---
+
+# Promoting components
+
+1) Move `components/draft/<Name>.tsx` → `components/<Name>.tsx` (or feature folder).
+
+2) Update imports in any demos and registries.
+
+3) In `app/proto/_ds/registry.ts`, move entry to `customComponents`.
+
+4) If the demo config is no longer needed, remove it from `component-registry.ts`.
+
+5) Run:
+   - `npm run validate-components`
+   - `npm run validate:demos`

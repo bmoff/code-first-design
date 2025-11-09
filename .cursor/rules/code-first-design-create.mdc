@@ -1,0 +1,58 @@
+---
+description: Create new draft components following Code-First-Design patterns
+globs: ["**/*.tsx", "**/*.ts"]
+---
+
+# Creating draft components
+
+When creating a new UI component:
+
+1) Create `components/draft/<Name>.tsx` (PascalCase, one export).
+
+2) Use a `interface Props { ... }` and export `defaultProps`:
+   ```ts
+   export interface ExampleCardProps {
+     title?: string;
+     description?: string;
+   }
+   
+   export const defaultProps: ExampleCardProps = {
+     title: "Default Title",
+     description: "Default description",
+   };
+   ```
+
+3) Prefer Server Components; add `'use client'` only when required.
+
+4) Compose from `components/ui/*` (shadcn primitives) where possible. Follow design principles in `design.mdc`.
+
+5) Add demo renderer to `app/proto/components/[slug]/page.tsx` in the `COMPONENT_DEMOS` object:
+   ```tsx
+   // In app/proto/components/[slug]/page.tsx
+   const COMPONENT_DEMOS: Record<string, () => React.ReactElement> = {
+     '<kebab-name>': () => <Name {...defaultProps} />,
+     // ... other demos
+   };
+   ```
+   Note: The `[slug]` route is a dynamic route that handles all component demos. You don't create individual page files.
+
+6) Register in `app/proto/_ds/registry.ts` under `draftComponents`:
+   ```ts
+   draftComponents: [
+     { 
+       name: "<Name>", 
+       path: "/proto/components/<kebab-name>", 
+       file: "components/draft/<Name>.tsx" 
+     }
+   ]
+   ```
+
+7) Add a demo config entry in `app/proto/_ds/component-registry.ts`:
+   ```ts
+   "<kebab-name>": {
+     componentName: "<Name>",
+     component: <Name>,
+     defaultProps: defaultProps,
+     fallbackMessage: "<Name> failed to render.",
+   }
+   ```

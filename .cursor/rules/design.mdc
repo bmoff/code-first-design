@@ -1,0 +1,82 @@
+---
+description: Project-specific design principles and patterns
+globs: ["**/*.tsx", "**/*.ts", "**/*.css"]
+---
+
+# Design Principles
+
+## Color Palette
+Define your primary, secondary, accent colors, and semantic colors (success, error, warning).
+
+Example:
+```ts
+// In your Tailwind config or CSS variables
+primary: hsl(240 65% 60%)
+secondary: hsl(220 20% 15%)
+accent: hsl(270 70% 65%)
+destructive: hsl(0 70% 55%)
+```
+
+## Typography
+Specify font families, sizes, weights, and line heights for headings and body text.
+
+Example:
+- Primary font: Inter (or system font stack)
+- Monospace: JetBrains Mono for code/data
+- Heading sizes: text-4xl, text-3xl, text-2xl, text-xl
+- Body: text-base with line-height 1.5
+
+## Spacing & Layout
+Define spacing scale, grid system, and layout patterns.
+
+Example:
+- Base unit: 4px (0.25rem)
+- Use Tailwind spacing scale: gap-4, p-6, mb-8
+- Grid: Use CSS Grid or Flexbox for responsive layouts
+- Container: max-w-5xl mx-auto for content width
+
+## Component Patterns
+Document common component patterns, glassmorphism effects, animations, etc.
+
+Example:
+```tsx
+// Card pattern
+<div className="p-6 rounded-xl border border-border/30 bg-card">
+  {/* Content */}
+</div>
+
+// Button with hover
+<Button className="hover:bg-primary/90 transition-colors">
+  Click me
+</Button>
+```
+
+## Accessibility
+Specify WCAG compliance level, contrast ratios, and keyboard navigation patterns.
+
+- WCAG 2.1 AA compliance minimum
+- Color contrast: 4.5:1 for text
+- Keyboard navigation: All interactive elements must be keyboard accessible
+- Focus indicators: Visible focus rings on all interactive elements
+- Screen readers: Use semantic HTML and ARIA labels where needed
+
+## Examples
+Include code examples for common patterns like cards, buttons, forms.
+
+```tsx
+// Example: Card component
+export function Card({ title, children }: CardProps) {
+  return (
+    <div className="p-6 rounded-xl border border-border/30 bg-card">
+      <h3 className="text-lg font-semibold mb-2">{title}</h3>
+      {children}
+    </div>
+  );
+}
+
+// Example: Button variants
+<Button variant="default">Primary</Button>
+<Button variant="secondary">Secondary</Button>
+<Button variant="outline">Outline</Button>
+<Button variant="ghost">Ghost</Button>
+```
