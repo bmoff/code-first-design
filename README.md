@@ -31,15 +31,15 @@ This is still an unfinished idea we’re testing in real projects. We welcome al
 The framework adds a clear pattern to manage UI components through three registries:
 
 1. **Component Registry (`registry.ts`)**
-   Lists all components with metadata such as name, path, and category.
+   Lists all components with metadata such as name, path, and category. Used for navigation and categorisation.
 
 2. **Component Config (`component-registry.ts`)**
-   Imports the component code, defines default props, and adds fallback behaviour.
+   Imports the component code, defines default props, and adds fallback behaviour. Used for validation and safe rendering.
 
 3. **Demo Renderers (`[slug]/page.tsx`)**
-   Maps components to demo pages that render previews and documentation.
+   Contains the `COMPONENT_DEMOS` object that maps component slugs to React render functions. This is what actually renders the component previews on the demo pages.
 
-When you visit `/proto`, you see a list of all components. Selecting one loads its demo with default props. Draft components live in `components/draft` and can only be used inside `/proto` routes. ESLint blocks their use in production code. Promoting a component simply means moving it out of `draft/` and updating the registries.
+When you visit `/proto`, you see a list of all components. Selecting one loads its demo with default props. Draft components live in `components/draft` and can only be used inside `/proto` routes. ESLint blocks their use in production code. Promoting a component simply means moving it out of `draft/` and updating all three registries.
 
 ---
 
@@ -102,6 +102,8 @@ npm install --save-dev tsx
 
 4. **Configure ESLint to block draft imports in production (using Flat Config):**
 
+Add these configuration objects to your existing `eslint.config.mjs` array:
+
 {
   rules: {
     "no-restricted-imports": ["error", {
@@ -119,10 +121,12 @@ npm install --save-dev tsx
 
 5. **Add validation scripts to package.json:**
 
-"scripts": {
-  "validate-components": "tsx app/proto/_ds/validate-components.ts",
-  "validate:demos": "node scripts/validate-demos.js"
-}
+Add these to the existing `scripts` section in your `package.json`:
+
+```json
+"validate-components": "tsx app/proto/_ds/validate-components.ts",
+"validate:demos": "node scripts/validate-demos.js"
+```
 
 6. **Start the project:**
 Run `npm run dev` and open `http://localhost:3000/proto`.
@@ -137,27 +141,30 @@ Stop after the folder structure, required files, and validation scripts are adde
 
 ### Creating a draft component
 
-1. In your AI editor, ask:
-   "Create a draft component HeroCard with title and cta."
+1. In your AI editor, explicitly reference the Cursor rule and ask:
+   "Follow the code-first-design-create rule and create a draft component HeroCard with title and cta."
 
 2. The editor will:
 
    * Create `components/draft/HeroCard.tsx`
-   * Add it to `registry.ts`
+   * Add it to `registry.ts` under `draftComponents`
    * Add a demo entry in `component-registry.ts`
-   * Create a demo page at `/proto/components/hero-card`
+   * Add an entry to the `COMPONENT_DEMOS` object in `app/proto/components/[slug]/page.tsx`
 
-You can also do this manually. Draft components can only be imported within `/proto` routes.
+The component will be available at `/proto/components/hero-card`. Draft components can only be imported within `/proto` routes.
+
+You can also do this manually by following the steps in `.cursor/rules/code-first-design-create.mdc`.
 
 ### Promoting a component to production
 
-1. When ready, ask:
-   "Promote HeroCard to production."
+1. When ready, explicitly reference the Cursor rule and ask:
+   "Follow the code-first-design-promote rule and promote HeroCard to production."
 
 2. The editor will:
 
    * Move the file from `components/draft/` to `components/`
-   * Update the registry and imports
+   * Update imports in registries and demo files
+   * Move the entry from `draftComponents` to `customComponents` in `registry.ts`
    * Run validations
 
 3. You can also run validation manually:
@@ -168,6 +175,8 @@ npm run validate:demos
 ```
 
 ESLint will prevent any leftover draft imports in production routes.
+
+You can also do this manually by following the steps in `.cursor/rules/code-first-design-promote.mdc`.
 
 ---
 
@@ -195,20 +204,23 @@ Run these regularly, especially after creating or promoting components.
 
 ## Example workflow
 
-1. Ask Cursor to generate a draft component, for example: “Create a draft component HeroCard with title and cta.”
+1. Ask your AI editor to generate a draft component, explicitly referencing the rule: "Follow the code-first-design-create rule and create a draft component HeroCard with title and cta."
 2. Open `/proto` to preview it, adjust layout and props, and share with teammates for feedback.
 3. Run `npm run validate-components` and `npm run validate:demos`, and check accessibility and usability quickly before sharing wider.
 4. Test the component with a few users or customers, gather feedback, and log any issues or ideas for improvement.
 5. Refine the component based on what you learn, update usage notes or props if needed, and ensure validation still passes.
-6. Move the component from `draft/` to `components/`, update registries, and open a pull request for review.
-7. Merge after review, deploy, and monitor how it’s used. Revisit `/proto` to make further improvements if needed.
+6. Ask your AI editor to promote it: "Follow the code-first-design-promote rule and promote HeroCard to production." Then open a pull request for review.
+7. Merge after review, deploy, and monitor how it's used. Revisit `/proto` to make further improvements if needed.
 
 ---
 
 ## Compatibility
 
-Works with any AI coding assistant.
-`.mdc` rule files are optional and safe to commit. If your tool doesn’t support them, you can still follow the same structure and use the validation scripts manually. The framework is designed to work either way.
+Works with any AI coding assistant that supports rule files (like Cursor's `.mdc` files).
+
+The `.mdc` rule files in `.cursor/rules/` provide structured instructions for creating and promoting components. When using Cursor, explicitly reference these rules in your prompts (e.g., "Follow the code-first-design-create rule...") for best results.
+
+If your tool doesn't support rule files, you can still follow the same structure manually by reading the `.mdc` files as documentation and using the validation scripts. The framework is designed to work either way.
 
 ---
 
