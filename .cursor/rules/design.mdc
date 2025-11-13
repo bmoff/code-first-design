@@ -6,25 +6,31 @@ globs: ["**/*.tsx", "**/*.ts", "**/*.css"]
 # Design Principles
 
 ## Color Palette
-Define your primary, secondary, accent colors, and semantic colors (success, error, warning).
+Use the design tokens defined in `app/globals.css`. The actual color values are defined there as CSS variables.
 
-Example:
-```ts
-// In your Tailwind config or CSS variables
-primary: hsl(240 65% 60%)
-secondary: hsl(220 20% 15%)
-accent: hsl(270 70% 65%)
-destructive: hsl(0 70% 55%)
-```
+Available tokens (reference `app/globals.css` for exact values):
+- **Primary**: `bg-primary`, `text-primary-foreground`, `hover:bg-primary/90`
+- **Secondary**: `bg-secondary`, `text-secondary-foreground`
+- **Accent**: `bg-accent`, `text-accent-foreground`, `hover:bg-accent`
+- **Destructive**: `bg-destructive`, `text-destructive-foreground`
+- **Background**: `bg-background`, `text-foreground`
+- **Card**: `bg-card`, `text-card-foreground`
+- **Muted**: `bg-muted`, `text-muted-foreground`
+- **Border**: `border-border`, `border-border/30` (with opacity)
+
+Always use these semantic tokens rather than hardcoded colours. For opacity variations, use `/30`, `/50`, `/90` etc.
 
 ## Typography
-Specify font families, sizes, weights, and line heights for headings and body text.
+Use Tailwind's typography scale. Check your project's font configuration in `app/layout.tsx` or `app/globals.css` for custom fonts.
 
-Example:
-- Primary font: Inter (or system font stack)
-- Monospace: JetBrains Mono for code/data
-- Heading sizes: text-4xl, text-3xl, text-2xl, text-xl
-- Body: text-base with line-height 1.5
+Typography scale:
+- **Headings**: `text-4xl`, `text-3xl`, `text-2xl`, `text-xl`, `text-lg`
+- **Body**: `text-base` (default)
+- **Small**: `text-sm`, `text-xs`
+- **Weights**: `font-normal`, `font-medium`, `font-semibold`, `font-bold`
+- **Line height**: Defaults are appropriate, use `leading-tight`, `leading-relaxed` if needed
+
+For code/data: Use `font-mono` with appropriate sizing.
 
 ## Spacing & Layout
 Define spacing scale, grid system, and layout patterns.

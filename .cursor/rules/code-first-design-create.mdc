@@ -48,11 +48,21 @@ When creating a new UI component:
    ```
 
 7) Add a demo config entry in `app/proto/_ds/component-registry.ts`:
+   First import the component and defaultProps at the top of the file:
    ```ts
-   "<kebab-name>": {
-     componentName: "<Name>",
-     component: <Name>,
-     defaultProps: defaultProps,
-     fallbackMessage: "<Name> failed to render.",
-   }
+   import { <Name> } from '@/components/draft/<Name>';
+   import { defaultProps } from '@/components/draft/<Name>';
+   ```
+   
+   Then add the config entry to the `COMPONENT_CONFIGS` object:
+   ```ts
+   export const COMPONENT_CONFIGS: Record<string, ComponentDemoConfig> = {
+     '<kebab-name>': {
+       componentName: '<Name>',
+       component: <Name>,
+       defaultProps: defaultProps,
+       fallbackMessage: '<Name> failed to render.',
+     },
+     // ... other configs
+   };
    ```

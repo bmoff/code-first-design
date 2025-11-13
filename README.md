@@ -95,6 +95,8 @@ scripts/                     # Validation scripts
 - scripts/
   - validate-demos.js
 
+**Important:** After copying the files, review and update `.cursor/rules/design.mdc` to match your design patterns and conventions. This file focuses on usage patterns and examples rather than exact values (which live in `app/globals.css`). Customise the component patterns, spacing conventions, and examples to match your project's style.
+
 3. **Install dependencies:**
 
 npm install @radix-ui/react-dialog @radix-ui/react-label @radix-ui/react-scroll-area @radix-ui/react-slot class-variance-authority clsx lucide-react tailwind-merge
