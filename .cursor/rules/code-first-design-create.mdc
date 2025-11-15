@@ -74,8 +74,14 @@ A component is a single reusable UI piece (like a button, card, or form). Compon
    - Use existing components from `components/ui/*` where possible
    - Follow design principles in `design.mdc`
 
-4) Add it to the demo system so it can be previewed. In `app/proto/components/[slug]/page.tsx`, add to the `COMPONENT_DEMOS` object:
+4) Add it to the demo system so it can be previewed. In `app/proto/components/[slug]/page.tsx`, add imports and demo:
    ```tsx
+   import { <Name> } from '@/components/draft/<Name>';
+   import { defaultProps } from '@/components/draft/<Name>';
+   // If in subfolder:
+   // import { <Name> } from '@/components/draft/<prototype-name>/<Name>';
+   // import { defaultProps } from '@/components/draft/<prototype-name>/<Name>';
+   
    const COMPONENT_DEMOS: Record<string, () => React.ReactElement> = {
      '<kebab-name>': () => <Name {...defaultProps} />,
      // ... other demos
@@ -89,16 +95,20 @@ A component is a single reusable UI piece (like a button, card, or form). Compon
      { 
        name: "<Name>", 
        path: "/proto/components/<kebab-name>", 
-       file: "components/draft/<Name>.tsx" 
+       file: "components/draft/<Name>.tsx"  // If in subfolder: "components/draft/<prototype-name>/<Name>.tsx"
      }
    ]
    ```
+   Note: If the component is in a subfolder (e.g., `components/draft/<prototype-name>/<Name>.tsx`), include the full path in the `file` property.
 
 6) Add it to `app/proto/_ds/component-registry.ts`:
    First import the component and its default props at the top:
    ```ts
    import { <Name> } from '@/components/draft/<Name>';
    import { defaultProps } from '@/components/draft/<Name>';
+   // If in subfolder:
+   // import { <Name> } from '@/components/draft/<prototype-name>/<Name>';
+   // import { defaultProps } from '@/components/draft/<prototype-name>/<Name>';
    ```
    
    Then add it to the `COMPONENT_CONFIGS` object:
@@ -150,8 +160,9 @@ export default function <Name>Page() {
 2) Create any new components needed:
    - List all components required for this prototype
    - Check if they already exist or need to be created
-   - If new components are needed, create them using the component steps above
+   - If new components are needed, create them using the component steps above (steps 1-6 in "Creating a component" section)
    - New components should live in `components/draft/<prototype-name>/` to keep them organised
+   - **Important**: ALL components created in `components/draft/` MUST be registered in the design system as draft components. Follow steps 4-6 in the "Creating a component" section to register them properly.
 
 3) Build the prototype page:
    - Import your components (draft components can be imported freely in `/proto` routes)

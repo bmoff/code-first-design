@@ -42,6 +42,23 @@ The framework uses three registries that work together:
 - **Server Components**: Prefer Server Components; add `'use client'` only when required.
 - **Composition**: Compose from `components/ui/*` (shadcn primitives) where possible.
 
+## Registering UI Primitives
+
+UI primitives (shadcn/ui components in `components/ui/*`) can be registered in the design system if you want them to appear in the design system UI:
+
+1. Add to `app/proto/_ds/registry.ts` under `uiPrimitives`:
+   ```ts
+   uiPrimitives: [
+     { name: "Button", path: "/proto/components/button", file: "components/ui/button.tsx" },
+   ]
+   ```
+
+2. Add to `app/proto/_ds/component-registry.ts` (if you want validation/demos)
+
+3. Add to `app/proto/components/[slug]/page.tsx` `COMPONENT_DEMOS` (if you want interactive demos)
+
+Note: UI primitives don't need to be registered - they're already production-ready. Registration is optional and only needed if you want them to appear in the design system showcase.
+
 ## Workflows
 
 - **Creating draft components or prototypes**: Follow `code-first-design-create.mdc` (handles both, includes planning questions for prototypes)

@@ -11,19 +11,66 @@ globs: ["**/*.tsx", "**/*.ts"]
 - You promote **components**, not prototypes. Prototypes stay in `/proto` for ongoing experimentation.
 - If you have components within a prototype that you want to use in production, promote those individual components.
 - Confirm which component to promote before starting. Ask: "Which component should I promote to production?" Only proceed once you have a clear answer.
+- **Decide if the component should appear in the design system**: If it's a reusable component that others should discover, register it. If it's only used within a specific prototype/feature, you can skip registration (but still move it to production).
 
 ---
 
 ## Steps
 
-1) Move `components/draft/<Name>.tsx` → `components/<Name>.tsx` (or feature folder).
+1) Move `components/draft/<Name>.tsx` → `components/<Name>.tsx` (or feature folder like `components/<feature-name>/<Name>.tsx`).
 
-2) Update imports in any demos and registries.
+2) Update imports everywhere:
+   - Update imports in any files that use this component (prototypes, other components, etc.)
+   - Update imports in `app/proto/_ds/component-registry.ts` (if component is registered there)
+   - Update imports in `app/proto/components/[slug]/page.tsx` (if component has a demo)
 
-3) In `app/proto/_ds/registry.ts`, move entry to `customComponents`.
+3) **If the component should appear in the design system** (recommended for reusable components):
+   - In `app/proto/_ds/registry.ts`, add entry to `customComponents`:
+     ```ts
+     customComponents: [
+       { 
+         name: "<Name>", 
+         path: "/proto/components/<kebab-name>", 
+         file: "components/<Name>.tsx"  // or "components/<feature-name>/<Name>.tsx"
+       }
+     ]
+     ```
+   - If it was previously in `draftComponents`, remove it from there.
+   - In `app/proto/_ds/component-registry.ts`, update the import and config:
+     ```ts
+     import { <Name> } from '@/components/<Name>';  // Updated path
+     import { defaultProps } from '@/components/<Name>';
+     // If in feature folder:
+     // import { <Name> } from '@/components/<feature-name>/<Name>';
+     // import { defaultProps } from '@/components/<feature-name>/<Name>';
+     
+     export const COMPONENT_CONFIGS: Record<string, ComponentDemoConfig> = {
+       '<kebab-name>': {
+         componentName: '<Name>',
+         component: <Name>,
+         defaultProps: defaultProps,
+         fallbackMessage: '<Name> failed to render.',
+       },
+     };
+     ```
+   - In `app/proto/components/[slug]/page.tsx`, update the import and demo:
+     ```tsx
+     import { <Name> } from '@/components/<Name>';  // Updated path
+     import { defaultProps } from '@/components/<Name>';
+     // If in feature folder:
+     // import { <Name> } from '@/components/<feature-name>/<Name>';
+     // import { defaultProps } from '@/components/<feature-name>/<Name>';
+     
+     const COMPONENT_DEMOS: Record<string, () => React.ReactElement> = {
+       '<kebab-name>': () => <Name {...defaultProps} />,
+     };
+     ```
 
-4) If the demo config is no longer needed, remove it from `component-registry.ts`.
+4) **If the component was NOT previously registered** (shouldn't happen if following create rules, but handle edge cases):
+   - All draft components should have been registered. If somehow one wasn't, decide if it should be registered now.
+   - If yes, follow step 3 above to register it as a custom component.
+   - If no, skip registration (component is production-ready but won't appear in design system UI).
 
-5) Run:
+5) Run validation:
    - `npm run validate-components`
    - `npm run validate:demos`
