@@ -5,6 +5,17 @@ globs: ["**/*.tsx", "**/*.ts"]
 
 # Promoting components
 
+**Before you start:** Read `code-first-design.mdc` to understand how the framework works, especially the "Draft vs production" and "Components vs prototypes" sections.
+
+**⚠️ IMPORTANT:** 
+- You promote **components**, not prototypes. Prototypes stay in `/proto` for ongoing experimentation.
+- If you have components within a prototype that you want to use in production, promote those individual components.
+- Confirm which component to promote before starting. Ask: "Which component should I promote to production?" Only proceed once you have a clear answer.
+
+---
+
+## Steps
+
 1) Move `components/draft/<Name>.tsx` → `components/<Name>.tsx` (or feature folder).
 
 2) Update imports in any demos and registries.

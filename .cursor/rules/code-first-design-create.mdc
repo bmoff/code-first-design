@@ -1,63 +1,89 @@
 ---
 description: Create new draft components or prototypes following Code-First-Design patterns
-globs: ["**/*.tsx", "**/*.ts"]
+alwaysApply: false
 ---
 
 # Creating draft components and prototypes
 
-This rule guides you through creating either a draft component or a prototype. First, determine what you're creating:
+**Before you start:** Read `code-first-design.mdc` to understand how the framework works, especially the "How it works" and "Components vs prototypes" sections. This rule helps you create either a component (individual UI piece) or a prototype (full application flow).
 
-- **Component**: An individual UI piece (button, card, form, etc.) that will be previewed in the design system
-- **Prototype**: A full application flow or complete page that demonstrates how multiple components work together
+**⚠️ IMPORTANT:** You MUST ask planning questions BEFORE starting implementation. Do not jump straight to code. Clarify what the user wants first, then proceed.
+
+---
+
+## Planning questions (ask these first)
+
+Before creating anything, ask these questions to understand what the user wants:
+
+1. **What are you creating?**
+   - Is it a **component** (like a button, card, or form - a single reusable piece)?
+   - Or is it a **prototype** (a complete page or flow that shows multiple components working together)?
+
+2. **What should it do?**
+   - What's its purpose? What problem does it solve?
+   - What should users be able to do with it?
+   - What information does it need? (For components: what information does the component need to work? For prototypes: what pages or screens does it need?)
+
+3. **What should it look like?**
+   - Any specific design requirements?
+   - Should it match existing components or have a new style?
+   - Any accessibility needs to consider?
+
+4. **How should it behave?**
+   - Does it need to respond to user clicks or input? (If yes, it needs to be interactive)
+   - Or is it just displaying information? (If yes, it can be simpler)
+
+5. **If creating a prototype, also ask:**
+   - What pages or screens does it need?
+   - What components will it use? Are they new or do they already exist?
+   - How should users navigate through it?
+
+**Workflow:**
+- If the user's request is vague, ask these questions explicitly
+- If the user provides detailed information and you're confident about the answers, summarise your understanding and any assumptions you're making (keep it clear and concise)
+- Only proceed to implementation steps once you have confirmed understanding
 
 ---
 
 ## Creating a component
 
-Components are individual UI pieces managed through three registries.
-
-### How the system works
-
-1. **`registry.ts`** - Lists components with metadata (name, path, category) for navigation. The `/proto` landing page reads this to show all available components.
-
-2. **`component-registry.ts`** - Imports component code and defines default props. Used for validation and safe rendering with fallback behaviour.
-
-3. **`COMPONENT_DEMOS` in `[slug]/page.tsx`** - Maps component slugs to React render functions. This is what actually renders the component preview when someone visits `/proto/components/<kebab-name>`.
-
-When you create a component, you must update all three registries. Once complete, the component will appear in the design system at `/proto` and be viewable at `/proto/components/<kebab-name>`. Draft components can only be imported in `/proto` routes (ESLint enforces this).
+A component is a single reusable UI piece (like a button, card, or form). Components are managed through three files that work together (see `code-first-design.mdc` for details).
 
 ### Steps
 
-1) Create `components/draft/<Name>.tsx` (PascalCase, one export).
+1) Create the component file at `components/draft/<Name>.tsx` (use PascalCase for the name, like `ExampleCard.tsx`).
 
-2) Use a `interface Props { ... }` and export `defaultProps`:
+2) Define what data the component accepts (these are called "props" - they're like settings or inputs the component needs to work):
    ```ts
    export interface ExampleCardProps {
-     title?: string;
-     description?: string;
+     title?: string;        // Optional title text
+     description?: string;  // Optional description text
    }
    
+   // Default values to use when the component is shown in the design system
    export const defaultProps: ExampleCardProps = {
      title: "Default Title",
      description: "Default description",
    };
    ```
 
-3) Prefer Server Components; add `'use client'` only when required.
+3) Build the component:
+   - If it doesn't need interactivity (no clicks, no input, no changing data), keep it simple - don't add `'use client'` (this is called a Server Component, which is the default)
+   - If it needs interactivity (buttons that do something, forms, data that changes when users interact), add `'use client'` at the very top of the file
+   - Examples: A card that just displays text = no `'use client'`. A button that opens a modal = needs `'use client'`
+   - Use existing components from `components/ui/*` where possible
+   - Follow design principles in `design.mdc`
 
-4) Compose from `components/ui/*` (shadcn primitives) where possible. Follow design principles in `design.mdc`.
-
-5) Add demo renderer to `app/proto/components/[slug]/page.tsx` in the `COMPONENT_DEMOS` object:
+4) Add it to the demo system so it can be previewed. In `app/proto/components/[slug]/page.tsx`, add to the `COMPONENT_DEMOS` object:
    ```tsx
-   // In app/proto/components/[slug]/page.tsx
    const COMPONENT_DEMOS: Record<string, () => React.ReactElement> = {
      '<kebab-name>': () => <Name {...defaultProps} />,
      // ... other demos
    };
    ```
-   Note: The `[slug]` route is a dynamic route that handles all component demos. You don't create individual page files.
+   Note: Use kebab-case for the name (like `example-card`). The `[slug]` route handles all component demos - you don't create individual page files.
 
-6) Register in `app/proto/_ds/registry.ts` under `draftComponents`:
+5) Register it in `app/proto/_ds/registry.ts` under `draftComponents`:
    ```ts
    draftComponents: [
      { 
@@ -68,14 +94,14 @@ When you create a component, you must update all three registries. Once complete
    ]
    ```
 
-7) Add a demo config entry in `app/proto/_ds/component-registry.ts`:
-   First import the component and defaultProps at the top of the file:
+6) Add it to `app/proto/_ds/component-registry.ts`:
+   First import the component and its default props at the top:
    ```ts
    import { <Name> } from '@/components/draft/<Name>';
    import { defaultProps } from '@/components/draft/<Name>';
    ```
    
-   Then add the config entry to the `COMPONENT_CONFIGS` object:
+   Then add it to the `COMPONENT_CONFIGS` object:
    ```ts
    export const COMPONENT_CONFIGS: Record<string, ComponentDemoConfig> = {
      '<kebab-name>': {
@@ -88,41 +114,20 @@ When you create a component, you must update all three registries. Once complete
    };
    ```
 
+Once complete, the component will appear in the design system at `/proto` and be viewable at `/proto/components/<kebab-name>`. Draft components can only be imported in `/proto` routes - the code checker (ESLint) will prevent them from being used in production code.
+
 ---
 
 ## Creating a prototype
 
-Prototypes are full application flows that live at `app/proto/prototypes/[name]/page.tsx`. Unlike components, they don't need `component-registry.ts` or `COMPONENT_DEMOS` - they're complete pages, not component demos.
-
-### Before you start
-
-Think through these questions before creating your prototype:
-
-1. **What's the purpose of this prototype?**
-   - What user flow or experience are you demonstrating?
-   - Is it a landing page, workspace, dashboard, or something else?
-
-2. **What components does it need?**
-   - List all the components required for this prototype
-   - Are these new components or existing ones?
-   - If new, where should they live? Consider `components/draft/[prototype-name]/` for organisation
-
-3. **What's the route structure?**
-   - Does it need a landing page that leads to a workspace?
-   - Or does it go straight to the main flow?
-   - Does it need nested routes? (e.g., `/prototypes/workspace/[id]`)
-
-4. **Component organisation:**
-   - New components for this prototype should live in `components/draft/[prototype-name]/`
-   - Create them using this same rule (components section above)
-   - Prototypes can import draft components freely
+A prototype is a complete page or flow that shows how multiple components work together. Prototypes are simpler than components - they only need to be registered in one place (`registry.ts`), not three.
 
 ### Steps
 
-1) Create the route structure at `app/proto/prototypes/<kebab-name>/page.tsx`:
+1) Create the prototype page at `app/proto/prototypes/<kebab-name>/page.tsx`:
 
 ```tsx
-'use client'; // or Server Component if no interactivity
+'use client'; // Add this if the page needs interactivity (buttons, forms, changing data), otherwise remove it
 
 import { ProtoHeader } from '@/app/proto/_components/ProtoHeader';
 // Import your components here
@@ -142,18 +147,18 @@ export default function <Name>Page() {
 }
 ```
 
-2) Determine what components you need:
+2) Create any new components needed:
    - List all components required for this prototype
    - Check if they already exist or need to be created
-   - If new components are needed, create them using this same rule (components section above)
-   - New components should live in `components/draft/<prototype-name>/` for organisation
+   - If new components are needed, create them using the component steps above
+   - New components should live in `components/draft/<prototype-name>/` to keep them organised
 
 3) Build the prototype page:
    - Import your components (draft components can be imported freely in `/proto` routes)
    - Structure the layout and flow
-   - Add any necessary state, routing, or interactivity
+   - Add any necessary interactivity or data that changes (this is called "state" - like tracking if a form is submitted, or what the user has selected)
 
-4) Register in `app/proto/_ds/registry.ts` under the `prototypes` array:
+4) Register it in `app/proto/_ds/registry.ts` under the `prototypes` array:
 
 ```ts
 prototypes: [
@@ -168,7 +173,7 @@ prototypes: [
 
 Note: Prototypes only need `registry.ts` - they don't need `component-registry.ts` or `COMPONENT_DEMOS` because they're full pages, not component demos.
 
-5) If you need nested routes (e.g., `/prototypes/workspace/[id]`), create additional route files:
+5) If you need multiple pages or nested routes (e.g., `/prototypes/workspace/[id]`), create additional route files:
    - `app/proto/prototypes/<name>/[id]/page.tsx` for dynamic routes
    - `app/proto/prototypes/<name>/layout.tsx` for shared layouts
 
