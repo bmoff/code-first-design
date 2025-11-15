@@ -5,6 +5,20 @@ globs: ["**/*.tsx", "**/*.ts"]
 
 # Creating draft components
 
+## How the system works
+
+The framework uses three registries that work together to manage components:
+
+1. **`registry.ts`** - Lists components with metadata (name, path, category) for navigation. The `/proto` landing page reads this to show all available components.
+
+2. **`component-registry.ts`** - Imports component code and defines default props. Used for validation and safe rendering with fallback behaviour.
+
+3. **`COMPONENT_DEMOS` in `[slug]/page.tsx`** - Maps component slugs to React render functions. This is what actually renders the component preview when someone visits `/proto/components/<kebab-name>`.
+
+When you create a component, you must update all three registries. Once complete, the component will appear in the design system at `/proto` and be viewable at `/proto/components/<kebab-name>`. Draft components can only be imported in `/proto` routes (ESLint enforces this).
+
+## Steps
+
 When creating a new UI component:
 
 1) Create `components/draft/<Name>.tsx` (PascalCase, one export).
