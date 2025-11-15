@@ -45,11 +45,9 @@ When you visit `/proto`, you see a list of all components. Selecting one loads i
 
 ## Try it first
 
-Want to see how it works before setting it up in your own project? Clone this repository and run it locally:
+Want to see how it works before setting it up in your own project? Clone this repository, then:
 
 ```bash
-git clone https://github.com/bmoff/code-first-design.git
-cd code-first-design
 npm install
 npm run dev
 ```
