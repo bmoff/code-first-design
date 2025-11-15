@@ -12,7 +12,7 @@ The framework helps both technical and non-technical contributors design, test, 
 
 It doesn’t replace design tools or solve every workflow problem, but we’ve found it useful in our own projects and are sharing it to see if others do too.
 
-This is still an unfinished idea we’re testing in real projects. We welcome all feedback, positive or critical, as we explore how this approach fits into real-world workflows.
+This is still an unfinished idea we're testing in real projects. We welcome all feedback, positive or critical, as we test this in real workflows.
 
 ---
 
@@ -20,15 +20,32 @@ This is still an unfinished idea we’re testing in real projects. We welcome al
 
 * Duplicate work between design and code: designs are often mocked up in Figma, then rebuilt manually in React.
 * Fragmented workflows: designers, developers, and PMs switch between tools and lose context.
-* The design/development divide: modern frameworks make direct design-in-code possible, but teams stay siloed.
+* The design/development divide: teams remain siloed even though design-in-code workflows are now possible.
 * Too much overhead for small teams: solo builders need one environment to design, test, and ship.
 * No clear structure for AI tools: AI editors can generate UI fast but struggle without project rules or context.
 
 ---
 
+## Try it first
+
+Want to see how it works before setting it up in your own project? Clone the repository and run:
+
+```bash
+npm install
+npm run dev
+```
+
+Open `http://localhost:3000/proto` to see the design system in action. You can create draft components, look at the registries, and see how everything works together before integrating it into your own codebase.
+
+---
+
 ## How it works
 
-The framework adds a clear pattern to manage UI components through three registries:
+The framework adds a clear pattern to manage UI components and prototypes through registries:
+
+### Components
+
+Components are individual UI pieces managed through three registries:
 
 1. **Component Registry (`registry.ts`)**
    Lists all components with metadata such as name, path, and category. Used for navigation and categorisation.
@@ -39,26 +56,54 @@ The framework adds a clear pattern to manage UI components through three registr
 3. **Demo Renderers (`[slug]/page.tsx`)**
    Contains the `COMPONENT_DEMOS` object that maps component slugs to React render functions. This is what actually renders the component previews on the demo pages.
 
-When you visit `/proto`, you see a list of all components. Selecting one loads its demo with default props. Draft components live in `components/draft` and can only be used inside `/proto` routes. ESLint blocks their use in production code. Promoting a component simply means moving it out of `draft/` and updating all three registries.
+When you visit `/proto`, you see a list of all components. Selecting one loads its demo with default props. Draft components live in `components/draft` and can only be used inside `/proto` routes. ESLint blocks their use in production code. To promote a component, move it out of `draft/` and update all three registries.
+
+### Prototypes
+
+Prototypes are full application flows or complete pages. They're simpler than components:
+- Live at `app/proto/prototypes/[name]/page.tsx`
+- Registered in `registry.ts` only (no `component-registry.ts` or `COMPONENT_DEMOS` needed)
+- Can import draft components freely
+- Can have nested routes
+
+Prototypes demonstrate how multiple components work together in a real user flow, like a complete workspace or dashboard.
+
+### Rules
+
+The framework includes Cursor rules in `.cursor/rules/` that guide you through working with these registries:
+- **`code-first-design-create.mdc`** - Unified rule for creating draft components or prototypes (asks which you want to create, includes planning questions for prototypes)
+- **`code-first-design-promote.mdc`** - Instructions for promoting components from draft to production
+- **`code-first-design.mdc`** - Framework overview and conventions (applied automatically)
+- **`design.mdc`** - Design patterns and component conventions
 
 ---
 
-## Try it first
+## Example workflow
 
-Want to see how it works before setting it up in your own project? Clone this repository, then:
+**Creating a prototype:**
 
-```bash
-npm install
-npm run dev
-```
+1. Call `@code-first-design-create` and describe what you want to build. Give clear instructions or reference a PRD: "Create a prototype for an analyst workspace. It needs a landing page where users enter a ticker symbol, then a workspace page showing research tools, charts, and analysis. I'll need components like WorkspaceLayout, AnalystSidebar, and ResearchPanel."
 
-Then open `http://localhost:3000/proto` to see the design system in action. You can create draft components, look at the registries, and see how everything works together before integrating it into your own codebase.
+2. The rule will ask planning questions, then guide you through creating the route structure, any new components needed, and registering everything in the registry.
+
+3. Preview at `/proto/prototypes/[your-prototype]`, iterate, and share with teammates for feedback.
+
+**Promoting components to production:**
+
+4. When components are ready, call `@code-first-design-promote` to move them from `draft/` to production. The rule handles moving files, updating imports, and moving registry entries.
+
+5. Run `npm run validate-components` and `npm run validate:demos` to ensure everything works.
+
+Prototypes can stay in `/proto` for ongoing experimentation, or you can promote individual components as they mature.
 
 ---
 
-## Quick setup (AI prompt)
+## Automated setup
 
 You can set up Code-First-Design automatically in tools like Cursor or Claude Code.
+
+<details>
+<summary>Click to expand setup prompt</summary>
 
 Copy and paste this prompt into your AI editor:
 
@@ -81,6 +126,7 @@ app/
     _ds/                     # Design system internals
     _components/             # Shared design system components
     components/[slug]/       # Dynamic component demo pages
+    prototypes/              # Full application flow prototypes (optional)
     layout.tsx               # Layout wrapper
     page.tsx                 # Design system landing page
 
@@ -102,6 +148,7 @@ scripts/                     # Validation scripts
 - components/draft/
   - ExampleCard.tsx
 - .cursor/rules/
+  - code-first-design.mdc
   - code-first-design-create.mdc
   - code-first-design-promote.mdc
   - design.mdc
@@ -150,48 +197,7 @@ You should see the design system landing page and the ExampleCard demo at `/prot
 Stop after the folder structure, required files, and validation scripts are added.
 ```
 
----
-
-## Usage
-
-### Creating a draft component
-
-1. In your AI editor, explicitly reference the Cursor rule and ask:
-   "Follow the code-first-design-create rule and create a draft component HeroCard with title and cta."
-
-2. The editor will:
-
-   * Create `components/draft/HeroCard.tsx`
-   * Add it to `registry.ts` under `draftComponents`
-   * Add a demo entry in `component-registry.ts`
-   * Add an entry to the `COMPONENT_DEMOS` object in `app/proto/components/[slug]/page.tsx`
-
-The component will be available at `/proto/components/hero-card`. Draft components can only be imported within `/proto` routes.
-
-You can also do this manually by following the steps in `.cursor/rules/code-first-design-create.mdc`.
-
-### Promoting a component to production
-
-1. When ready, explicitly reference the Cursor rule and ask:
-   "Follow the code-first-design-promote rule and promote HeroCard to production."
-
-2. The editor will:
-
-   * Move the file from `components/draft/` to `components/`
-   * Update imports in registries and demo files
-   * Move the entry from `draftComponents` to `customComponents` in `registry.ts`
-   * Run validations
-
-3. You can also run validation manually:
-
-```bash
-npm run validate-components
-npm run validate:demos
-```
-
-ESLint will prevent any leftover draft imports in production routes.
-
-You can also do this manually by following the steps in `.cursor/rules/code-first-design-promote.mdc`.
+</details>
 
 ---
 
@@ -217,25 +223,11 @@ Run these regularly, especially after creating or promoting components.
 
 ---
 
-## Example workflow
-
-1. Ask your AI editor to generate a draft component, explicitly referencing the rule: "Follow the code-first-design-create rule and create a draft component HeroCard with title and cta."
-2. Open `/proto` to preview it, adjust layout and props, and share with teammates for feedback.
-3. Run `npm run validate-components` and `npm run validate:demos`, and check accessibility and usability quickly before sharing wider.
-4. Test the component with a few users or customers, gather feedback, and log any issues or ideas for improvement.
-5. Refine the component based on what you learn, update usage notes or props if needed, and ensure validation still passes.
-6. Ask your AI editor to promote it: "Follow the code-first-design-promote rule and promote HeroCard to production." Then open a pull request for review.
-7. Merge after review, deploy, and monitor how it's used. Revisit `/proto` to make further improvements if needed.
-
----
-
 ## Compatibility
 
 Works with any AI coding assistant that supports rule files (like Cursor's `.mdc` files).
 
 The `.mdc` rule files in `.cursor/rules/` provide structured instructions for creating and promoting components. When using Cursor, explicitly reference these rules in your prompts (e.g., "Follow the code-first-design-create rule...") for best results.
-
-If your tool doesn't support rule files, you can still follow the same structure manually by reading the `.mdc` files as documentation and using the validation scripts. The framework is designed to work either way.
 
 ---
 

@@ -1,0 +1,55 @@
+---
+alwaysApply: true
+---
+# Code-First-Design Framework
+
+This project uses Code-First-Design, a framework for managing UI components with a clear separation between draft (experimental) and production components.
+
+## How it works
+
+The framework uses three registries that work together:
+
+1. **`app/proto/_ds/registry.ts`** - Lists all components with metadata (name, path, category). Used for navigation on the `/proto` landing page.
+
+2. **`app/proto/_ds/component-registry.ts`** - Imports component code and defines default props. Used for validation and safe rendering with fallback behaviour.
+
+3. **`app/proto/components/[slug]/page.tsx`** - Contains the `COMPONENT_DEMOS` object that maps component slugs to React render functions. This renders the component previews at `/proto/components/<kebab-name>`.
+
+## Components vs prototypes
+
+**Components** are individual UI pieces:
+- Have a `file` property in the registry
+- Rendered via `COMPONENT_DEMOS` in `app/proto/components/[slug]/page.tsx`
+- Need all three registries updated (`registry.ts`, `component-registry.ts`, `COMPONENT_DEMOS`)
+
+**Prototypes** are full application flows:
+- No `file` property (just routes)
+- Live at `app/proto/prototypes/[name]/page.tsx`
+- Registered in `registry.ts` only (not `component-registry.ts` or `COMPONENT_DEMOS`)
+- Can import draft components freely
+- Can have nested routes
+
+## Draft vs production
+
+- **Draft components** live in `components/draft/` and can only be imported in `/proto` routes. ESLint blocks their use in production code.
+- **Production components** live in `components/` (or feature folders) and can be used anywhere.
+- Promoting a component means moving it from `draft/` to production and updating all three registries.
+
+## Conventions
+
+- **Component naming**: PascalCase for custom components (`ExampleCard.tsx`), kebab-case for shadcn primitives (`button.tsx`).
+- **Default props**: All draft components should export `defaultProps` for demo rendering.
+- **Server Components**: Prefer Server Components; add `'use client'` only when required.
+- **Composition**: Compose from `components/ui/*` (shadcn primitives) where possible.
+
+## Workflows
+
+- **Creating draft components or prototypes**: Follow `code-first-design-create.mdc` (handles both, includes planning questions for prototypes)
+- **Promoting to production**: Follow `code-first-design-promote.mdc`
+- **Design patterns**: Follow `design.mdc`
+
+## Validation
+
+Run validation scripts after creating or promoting components:
+- `npm run validate-components` - Ensures all components can be imported and rendered
+- `npm run validate:demos` - Checks that every component in the registry has a working demo
