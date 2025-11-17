@@ -1,16 +1,16 @@
 # Code-First-Design
 
-Design and development are moving closer together through AI-assisted and component-driven workflows. Tools such as Cursor and Lovable now let developers, designers, and product managers work with code and design in the same place. At the same time, design tools like Figma are starting to generate working code from designs.
+Design and development are converging. through AI-assisted and component-driven workflows. More teams are designing directly in code using AI editors such as Cursor and Lovable, and tools like Figma can now generate working components. This reduces the need for traditional handoff, as developers, designers, and PMs can create and test ideas straight in the codebase.
 
-However, AI-assisted tools often lack the context or structure to produce code that is consistently ready for production or easy to scale.
+However, these AI-assistent tools often lack the context and guardrails to produce code that is consistent, reusable, and easy to scale.
 
 Most teams still rely on a traditional handoff process. Product managers write specifications, designers create mock-ups, and developers rebuild them in code. This duplication slows down iteration and creates friction, even as AI becomes part of everyday work.
 
-**Code-First-Design** starts from a simple bet: design and code will continue to merge. If most of the real product experience already lives in code, it should also be the place where teams experiment, validate ideas, and shape how components evolve.
+**Code-First-Design** starts from the hypothesis that design and code will continue to converge. If the real product experience already lives in code, it should also be the place where teams experiment and validate ideas.
 
-The framework helps both technical and non-technical contributors design, test, and promote components directly inside a Next.js project. It introduces a clear structure that makes this process easier for people and AI tools to follow, reducing overhead and helping projects scale cleanly.
+The framework helps both technical and non-technical contributors design, test, and promote components directly inside a Next.js project. It introduces a clear structure that makes this process easier for people and AI tools to follow, helping projects scale successfully.
 
-It doesn’t replace design tools or solve every workflow problem, but we’ve found it useful in our own projects and are sharing it to see if others do too.
+It doesn’t replace design tools, and it won’t suit every workflow. We’ve found it useful in our own projects and are sharing it to see whether others find it helpful.
 
 This is still an unfinished idea we're testing in real projects. We welcome all feedback, positive or critical, as we test this in real workflows.
 
