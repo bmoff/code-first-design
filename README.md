@@ -1,8 +1,8 @@
 # Code-First-Design
 
-Design and development are converging, particularly driven by AI-assisted workflows. More teams are designing directly in code using AI editors such as Cursor and Lovable, and tools like Figma can now generate working components. This reduces the need for traditional handoff, as developers, designers, and PMs can create and test ideas straight in the codebase.
+Design and development are converging, which is being accelerated by AI-assisted workflows. More teams are designing directly in code using AI editors such as Cursor and Lovable, and tools like Figma can now generate working components.
 
-However, these AI-assistent tools often lack the context and guardrails to produce code that is consistent, reusable, and easy to scale.
+However, these AI-assisted tools often lack the context and guardrails to produce code that is consistent, reusable, and easy to scale.
 
 Most teams still rely on a traditional handoff process. Product managers write specifications, designers create mock-ups, and developers rebuild them in code. This duplication slows down iteration and creates friction, even as AI becomes part of everyday work.
 
